@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MsExamplePosIntegration">
         <activity
-            android:name="com.theminesec.example.app.pos.com.theminesec.example.pos.MainActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
