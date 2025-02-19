@@ -67,7 +67,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("com.theminesec.app:poslib:1.2.0")
+    implementation("com.theminesec.app:poslib:1.2.6")
     implementation("com.google.code.gson:gson:2.10.1")
 
 }

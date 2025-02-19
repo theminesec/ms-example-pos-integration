@@ -39,6 +39,7 @@ class ExampleViewModel : ViewModel() {
     // and expose set method in the viewmodel
     var activationCode by mutableStateOf("")
     var cachedTransactionId by mutableStateOf("")
+    var cachedPosMessageId by mutableStateOf("")
     var merchantAdminPasscode by mutableStateOf("123456")
     var posMessageId by mutableStateOf("")
 

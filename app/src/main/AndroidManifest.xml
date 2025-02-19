@@ -20,6 +20,6 @@
 
     <queries>
         <!-- MineSec -->
-        <package android:name="com.minesec.msa" />
+        <package android:name="com.minesec.msa.stage" />
     </queries>
 </manifest>

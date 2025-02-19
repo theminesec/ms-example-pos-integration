@@ -25,10 +25,10 @@ import com.google.gson.GsonBuilder
 import com.theminesec.app.poslib.MsaPosApi
 import com.theminesec.app.poslib.model.PosRequest
 import com.theminesec.app.poslib.model.PosResponse
-import com.theminesec.example.pos.util.DemoApp
-import com.theminesec.example.pos.util.transformActivationCode
 import com.theminesec.example.pos.ui.UiSection.Companion.getTitle
 import com.theminesec.example.pos.ui.component.BrandedButton
+import com.theminesec.example.pos.util.DemoApp
+import com.theminesec.example.pos.util.transformActivationCode
 import kotlinx.coroutines.launch
 
 private enum class UiSection(val title: String) {
@@ -38,9 +38,12 @@ private enum class UiSection(val title: String) {
     EnquiryApp("Enquiry App Status"),
     SaleTran("Sale Request"),
     EnquiryTran("Enquiry Transaction Status"),
+    EnquiryTranWithMessageId("Enquiry Transaction Status With Pos MessageId"),
     VoidTran("Void Transaction"),
     Settlement("Settle Batch"),
-    RefundTran("Refund (After Settlement)");
+    RefundTran("Refund (After Settlement)"),
+    ReloadConfiguration("Reload Configuration"),
+    EnquiryBluetoothConnectStatus("Enquiry Bluetooth Connect Status");
 
     companion object {
         fun UiSection.getTitle() = "${this.ordinal + 1}. ${this.title}"
@@ -92,10 +95,16 @@ fun ExampleSection(
             if (it is PosResponse.Success) {
                 viewModel.cachedTransactionId = it.data.tranId
             }
+            viewModel.cachedPosMessageId = viewModel.posMessageId
             viewModel.resetRandomPosMessageId()
         }
     val enquiryTranLauncher =
         rememberLauncherForActivityResult(msaPosApi.enquiryTranStatusContract()) {
+            viewModel.writeMessage(it::class.simpleName.orEmpty())
+            viewModel.writeMessage(prettyGson.toJson(it))
+        }
+    val enquiryTranWithMessageIdLauncher =
+        rememberLauncherForActivityResult(msaPosApi.enquiryTranStatusWithMessageIdContract()) {
             viewModel.writeMessage(it::class.simpleName.orEmpty())
             viewModel.writeMessage(prettyGson.toJson(it))
         }
@@ -104,6 +113,17 @@ fun ExampleSection(
             viewModel.writeMessage(it::class.simpleName.orEmpty())
             viewModel.writeMessage(prettyGson.toJson(it))
             viewModel.resetRandomPosMessageId()
+        }
+    val reloadConfigurationLauncher =
+        rememberLauncherForActivityResult(msaPosApi.reloadConfigurationContract()) {
+            viewModel.writeMessage(it::class.simpleName.orEmpty())
+            viewModel.writeMessage(prettyGson.toJson(it))
+        }
+
+    val enquiryBTConnectStatusLauncher =
+        rememberLauncherForActivityResult(msaPosApi.enquiryBTConnectStatusContract()) {
+            viewModel.writeMessage(it::class.simpleName.orEmpty())
+            viewModel.writeMessage(prettyGson.toJson(it))
         }
 
     Column(
@@ -327,6 +347,25 @@ fun ExampleSection(
         }
 
         Divider()
+        Text(text = UiSection.EnquiryTranWithMessageId.getTitle())
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(text = "POS Message ID") },
+            value = viewModel.cachedPosMessageId,
+            onValueChange = { viewModel.cachedPosMessageId = it },
+        )
+        BrandedButton(
+            onClick = {
+                val req = PosRequest.EnquiryTranStatusWithMessageId(viewModel.cachedPosMessageId)
+                viewModel.writeMessage(req.toString())
+                enquiryTranWithMessageIdLauncher.launch(req)
+            },
+            enabled = isSoftPosInstalled
+        ) {
+            Text(text = "Enquiry Transaction With MessageId")
+        }
+
+        Divider()
         Text(text = UiSection.VoidTran.getTitle())
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -389,6 +428,30 @@ fun ExampleSection(
             enabled = isSoftPosInstalled
         ) {
             Text(text = "Refund")
+        }
+        Divider()
+        Text(text = UiSection.ReloadConfiguration.getTitle())
+        Text(text = "Reload Configuration")
+        BrandedButton(
+            onClick = {
+                viewModel.writeMessage("Launch - Reload Configuration")
+                reloadConfigurationLauncher.launch()
+            },
+            enabled = isSoftPosInstalled
+        ) {
+            Text(text = "Reload Configuration")
+        }
+        Divider()
+        Text(text = UiSection.EnquiryBluetoothConnectStatus.getTitle())
+        Text(text = "Enquiry Bluetooth Connection Status")
+        BrandedButton(
+            onClick = {
+                viewModel.writeMessage("Launch - Enquiry Bluetooth Connection Status")
+                enquiryBTConnectStatusLauncher.launch()
+            },
+            enabled = isSoftPosInstalled
+        ) {
+            Text(text = "Enquiry Bluetooth Connection Status")
         }
     }
 }
